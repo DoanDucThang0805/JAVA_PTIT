@@ -29,7 +29,7 @@ class Person{
 }
 
 
-class Students extends Person{
+class Students extends Persons {
     private static int credit = 0;
 
 
