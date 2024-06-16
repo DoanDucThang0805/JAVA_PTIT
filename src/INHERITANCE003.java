@@ -1,181 +1,120 @@
 import java.util.ArrayList;
 
-
 public class INHERITANCE003 {
     public static void main(String[] args) {
-        String name = "Grocery Bill";
-        Employee clerk1 = new Employee(name);
+        Employee clerk1 = new Employee("Grocery Bill");
         GroceryBill groceryBill = new GroceryBill(clerk1);
         groceryBill.add(new Item("item 1", 2.3, 0));
         groceryBill.add(new Item("item 2", 3.45, 0));
-        System.out.println(groceryBill.toString());
+        System.out.println(groceryBill);
         System.out.println();
-        name = "Discount Bill";
-        Employee clerk2 = new Employee(name);
+        Employee clerk2 = new Employee("Discount Bill");
         DiscountBill discountBill = new DiscountBill(clerk2);
         discountBill.add(new Item("item 3", 20, 15));
         discountBill.add(new Item("item 4", 40, 35));
         discountBill.add(new Item("item 5", 50, 35));
-        System.out.print(discountBill.toString());
+        System.out.println(discountBill);
     }
 }
 
+class Item {
+    private final String name;
+    private final double price;
+    private final double discount;
 
-class Item{
-    private String name;
-    private double discount;
-    private double price;
-
-
-    public Item(String name, double price, double discount){
+    public Item(String name, double price, double discount) {
         this.name = name;
         this.price = price;
         this.discount = discount;
     }
 
-
     public String getName() {
-        return name;
+        return this.name;
     }
-
-
-    public double getDiscount() {
-        return discount;
-    }
-
 
     public double getPrice() {
-        return price;
+        return this.price;
     }
 
-
-    @Override
-    public String toString(){
-        return name + "$" + String.format("%.2f", price) + "(-$" + String.format("%.2f", discount) + ")";
-    }
-}
-
-
-class Employee{
-    private String name;
-
-    public Employee(String name){
-        this.name = name;
+    public double getDiscount() {
+        return this.discount;
     }
 
-
-    public String getName() {
-        return name;
+    public String toString() {
+        return String.format("%s $%.2f (-$%.2f)", this.name, this.price, this.discount);
     }
 }
 
+class Employee {
+    private final String clerk;
 
-class GroceryBill{
-    private Employee clerk;
-    private ArrayList<Item> receipt = new ArrayList<>();
-    private static double total = 0.0;
-
-
-    public GroceryBill(Employee clerk){
+    public Employee(String clerk) {
         this.clerk = clerk;
     }
 
-
-    public void add(Item i){
-        receipt.add(i);
-        total = total + i.getPrice();
-    }
-
-
-    public static double getTotal() {
-        return total;
-    }
-
-
-    public Employee getClerk() {
-        return clerk;
-    }
-
-    public ArrayList<Item> getReceipt() {
-        return receipt;
-    }
-
-
-    @Override
-    public String toString(){
-        StringBuilder result = new StringBuilder("items:\n");
-        for (Item item : receipt){
-            String name = item.getName();
-            double price = item.getPrice();
-            double dis_price = item.getDiscount();
-            result.append("   ")
-                    .append(name)
-                    .append(" $")
-                    .append(String.format("%.2f", price))
-                    .append(" (-$")
-                    .append(String.format("%.2f", dis_price))
-                    .append(")\n");
-        }
-        result.append("total: $")
-                .append(String.format("%.2f", getTotal()))
-                .append("\nClerk: ")
-                .append(this.getClerk().getName());
-        return result.toString();
+    public String getName() {
+        return this.clerk;
     }
 }
 
+class GroceryBill {
+    private final Employee clerk;
+    private final ArrayList<Item> receipt = new ArrayList<>();
 
-class DiscountBill extends GroceryBill{
-    private static double discountAmount = 0.0;
-    private ArrayList<Item> receipt = new ArrayList<>();
+    public GroceryBill(Employee clerk) {
+        this.clerk = clerk;
+    }
 
-    public DiscountBill(Employee clerk){
+    public Employee getClerk() {
+        return this.clerk;
+    }
+
+    public ArrayList<Item> getReceipt() {
+        return this.receipt;
+    }
+
+    public void add(Item i) {
+        this.receipt.add(i);
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder("items:\n");
+        double total = 0.0;
+        for (Item i : receipt) {
+            sb.append("   ").append(i.toString()).append("\n");
+            total += i.getPrice();
+        }
+        sb.append(String.format("total: $%.2f\n", total));
+        sb.append("Clerk: ").append(this.clerk.getName());
+        return sb.toString();
+    }
+}
+
+class DiscountBill extends GroceryBill {
+    private double discountAmount = 0.0;
+    private double totalAmount = 0.0;
+
+    public DiscountBill(Employee clerk) {
         super(clerk);
     }
 
-
-    public double getDiscountAmount(){
-        return discountAmount;
+    @Override
+    public void add(Item i) {
+        super.add(i);
+        totalAmount += i.getPrice();
+        discountAmount += i.getDiscount();
     }
-
-
-    public ArrayList<Item> getReceipt() {
-        return receipt;
-    }
-
 
     @Override
-    public void add(Item i){
-        this.receipt.add(i);
-        discountAmount = discountAmount + i.getPrice();
-    }
-
-
-    @Override
-    public String toString(){
+    public String toString() {
         StringBuilder sb = new StringBuilder("items:\n");
-        double discount = 0.0;
-        for(Item item : this.getReceipt()){
-            String name = item.getName();
-            double price = item.getPrice();
-            double dis_price = item.getDiscount();
-            discount = discount + dis_price;
-            sb.append("   ")
-                    .append(name)
-                    .append(" $")
-                    .append(String.format("%.2f", price))
-                    .append(" (-$")
-                    .append(String.format("%.2f", dis_price))
-                    .append(")\n");
+        for (Item i : this.getReceipt()) {
+            sb.append("   ").append(i.toString()).append("\n");
         }
-        sb.append("sub-total: $")
-                .append(String.format("%.2f", getDiscountAmount()))
-                .append("\ndiscount: $")
-                .append(String.format("%.2f", discount))
-                .append("\ntotal: $")
-                .append(String.format("%.2f", this.getDiscountAmount() - discount))
-                .append("\nClerk: ")
-                .append(this.getClerk().getName());
+        sb.append(String.format("sub-total: $%.2f\n", totalAmount));
+        sb.append(String.format("discount: $%.2f\n", discountAmount));
+        sb.append(String.format("total: $%.2f\n", totalAmount - discountAmount));
+        sb.append("Clerk: ").append(this.getClerk().getName());
         return sb.toString();
     }
 }
